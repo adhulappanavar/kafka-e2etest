@@ -203,10 +203,20 @@ class KafkaTestClient:
         
         self.console.print(table)
         
-        # Store verbose output for reporting with Rich table formatting
+        # Store verbose output for reporting with markdown table formatting
         if self.verbose:
-            # Capture the Rich table as markdown
-            table_markdown = self._table_to_markdown(table)
+            # Create markdown table directly
+            table_markdown = f"**📤 Message Sent{index_text}**\n\n"
+            table_markdown += "| Property | Value |\n"
+            table_markdown += "|----------|-------|\n"
+            table_markdown += f"| Topic | {topic} |\n"
+            table_markdown += f"| Partition | {record_metadata.partition} |\n"
+            table_markdown += f"| Offset | {record_metadata.offset} |\n"
+            table_markdown += f"| Key | {key if key else 'None'} |\n"
+            table_markdown += f"| Message ID | {message.get('id', 'N/A')} |\n"
+            table_markdown += f"| Message | {message.get('message', 'N/A')} |\n"
+            table_markdown += f"| Timestamp | {message.get('timestamp', 'N/A')} |\n"
+            
             self.verbose_log.append(table_markdown)
             self.verbose_log.append("")
     
@@ -227,10 +237,20 @@ class KafkaTestClient:
         
         self.console.print(table)
         
-        # Store verbose output for reporting with Rich table formatting
+        # Store verbose output for reporting with markdown table formatting
         if self.verbose:
-            # Capture the Rich table as markdown
-            table_markdown = self._table_to_markdown(table)
+            # Create markdown table directly
+            table_markdown = f"**📥 Message Consumed #{message_index}**\n\n"
+            table_markdown += "| Property | Value |\n"
+            table_markdown += "|----------|-------|\n"
+            table_markdown += f"| Topic | {message_data['topic']} |\n"
+            table_markdown += f"| Partition | {message_data['partition']} |\n"
+            table_markdown += f"| Offset | {message_data['offset']} |\n"
+            table_markdown += f"| Key | {message_data['key'] if message_data['key'] else 'None'} |\n"
+            table_markdown += f"| Message ID | {message_data['value'].get('id', 'N/A')} |\n"
+            table_markdown += f"| Message | {message_data['value'].get('message', 'N/A')} |\n"
+            table_markdown += f"| Timestamp | {message_data['timestamp']} |\n"
+            
             self.verbose_log.append(table_markdown)
             self.verbose_log.append("")
     
@@ -283,8 +303,15 @@ class KafkaTestClient:
                 self.console.print(table)
                 self.console.print(f"[green]✓ Queue length: {queue_length} messages[/green]\n")
                 
-                # Store verbose output for reporting with Rich table formatting
-                table_markdown = self._table_to_markdown(table)
+                # Store verbose output for reporting with markdown table formatting
+                table_markdown = f"**📊 Queue Length Information**\n\n"
+                table_markdown += "| Metric | Value |\n"
+                table_markdown += "|--------|-------|\n"
+                table_markdown += f"| Topic | {topic} |\n"
+                table_markdown += f"| Total Messages | {total_messages} |\n"
+                table_markdown += f"| Read Messages | {current_messages} |\n"
+                table_markdown += f"| Queue Length | {queue_length} |\n"
+                
                 self.verbose_log.append(table_markdown)
                 self.verbose_log.append("")
             
@@ -293,37 +320,7 @@ class KafkaTestClient:
         finally:
             temp_consumer.close()
     
-    def _table_to_markdown(self, table) -> str:
-        """Convert a Rich table to markdown format"""
-        # Get table title
-        title = getattr(table, 'title', None)
-        title_text = f"**{title}**\n\n" if title else ""
-        
-        # Get table data
-        rows = []
-        for row in table.rows:
-            # Extract text from Rich Text objects
-            row_data = []
-            for cell in row.cells:
-                if hasattr(cell, 'plain'):
-                    row_data.append(cell.plain)
-                else:
-                    row_data.append(str(cell))
-            rows.append(row_data)
-        
-        if not rows:
-            return title_text + "No data available"
-        
-        # Create markdown table
-        markdown = title_text
-        markdown += "| " + " | ".join(rows[0]) + " |\n"
-        markdown += "| " + " | ".join(["---"] * len(rows[0])) + " |\n"
-        
-        for row in rows[1:]:
-            markdown += "| " + " | ".join(row) + " |\n"
-        
-        return markdown
-    
+
     def get_verbose_log(self) -> str:
         """Get the verbose log as a string"""
         return "\n".join(self.verbose_log)
