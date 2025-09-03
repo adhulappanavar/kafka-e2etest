@@ -145,10 +145,19 @@ class TestReportGenerator:
             # Add verbose output if available
             if result.get('verbose_output'):
                 markdown_content += f"<details>\n<summary><strong>🔍 Verbose Output</strong></summary>\n\n"
-                markdown_content += "```\n"
-                markdown_content += result['verbose_output']
-                markdown_content += "\n```\n\n"
-                markdown_content += f"</details>\n\n"
+                
+                # Check if verbose output contains markdown tables
+                verbose_output = result['verbose_output']
+                if "| " in verbose_output and "---" in verbose_output:
+                    # It's already markdown formatted, include it directly
+                    markdown_content += verbose_output
+                else:
+                    # It's plain text, wrap in code block
+                    markdown_content += "```\n"
+                    markdown_content += verbose_output
+                    markdown_content += "\n```\n"
+                
+                markdown_content += f"\n</details>\n\n"
                         
         # Add test categories summary
         markdown_content += "---\n\n## 📊 Test Categories Summary\n\n"
