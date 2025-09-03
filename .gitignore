@@ -140,8 +140,8 @@ cython_debug/
 # Docker
 .dockerignore
 
-# Kafka test reports
-kafka_test_report_*.md
+# Kafka test reports (commented out to allow sample reports)
+# kafka_test_report_*.md
 
 # Logs
 *.log
